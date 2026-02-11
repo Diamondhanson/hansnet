@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(222 47% 11%);
+  --primary: #0f172a;
+  --primary-foreground: hsl(210 40% 98%);
+  --accent: #f59e0b;
+  --accent-foreground: hsl(222 47% 11%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(215 16% 47%);
+  --border: #e2e8f0;
+  --ring: hsl(222 47% 11%);
+  --input: #e2e8f0;
+  --secondary: hsl(210 40% 96%);
+  --secondary-foreground: hsl(222 47% 11%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border-default: 1px solid #e2e8f0;
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222 47% 11%);
+  --dashboard-blue: #1e3a5f;
+  --dashboard-blue-foreground: hsl(210 40% 98%);
+  --slate-100: #f1f5f9;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222 47% 11%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: hsl(222 47% 8%);
+    --foreground: hsl(210 40% 98%);
+    --primary: hsl(210 40% 98%);
+    --primary-foreground: hsl(222 47% 11%);
+    --accent: #f59e0b;
+    --accent-foreground: hsl(222 47% 11%);
+    --muted: hsl(217 33% 17%);
+    --muted-foreground: hsl(215 20% 65%);
+    --border: hsl(217 33% 24%);
+    --ring: hsl(210 40% 98%);
+    --input: hsl(217 33% 24%);
+    --secondary: hsl(217 33% 17%);
+    --secondary-foreground: hsl(210 40% 98%);
+    --destructive: hsl(0 62% 50%);
+    --destructive-foreground: hsl(210 40% 98%);
+    --border-default: 1px solid hsl(217 33% 24%);
+    --card: hsl(222 47% 11%);
+    --card-foreground: hsl(210 40% 98%);
+    --dashboard-blue: #2d4a6f;
+    --dashboard-blue-foreground: hsl(210 40% 98%);
+    --slate-100: #1e293b;
+    --slate-700: #94a3b8;
+    --slate-800: #cbd5e1;
+    --popover: hsl(222 47% 11%);
+    --popover-foreground: hsl(210 40% 98%);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-dashboard-blue: var(--dashboard-blue);
+  --color-dashboard-blue-foreground: var(--dashboard-blue-foreground);
+  --color-slate-100: var(--slate-100);
+  --color-slate-700: var(--slate-700);
+  --color-slate-800: var(--slate-800);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-admin] button,
+[data-admin] input,
+[data-admin] [data-slot="card"],
+[data-admin] [data-slot="badge"],
+[data-admin] [data-slot="table"] {
+  border-radius: 0;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.bg-blueprint {
+  background-image: linear-gradient(to right, rgba(226, 232, 240, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.border-default {
+  border: var(--border-default);
 }

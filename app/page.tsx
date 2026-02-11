@@ -1,65 +1,48 @@
 import Image from "next/image";
+import Link from "next/link";
+import { COMPANY_NAME } from "@/constants/config";
+import { Button } from "@/components/ui/button";
+
+const HERO_IMAGE_URL =
+  "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col">
+      <section className="relative w-full overflow-hidden border-b border-default">
+        <div className="relative aspect-[21/9] w-full min-h-[320px] sm:min-h-[400px] md:aspect-[3/1]">
+          <Image
+            src={HERO_IMAGE_URL}
+            alt="Cargo ship and logistics warehouse — global supply chain"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 2000px"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-blueprint bg-primary/40" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+            <h1 className="font-mono text-3xl font-bold uppercase tracking-tight text-white drop-shadow-md sm:text-4xl md:text-5xl">
+              {COMPANY_NAME}
+            </h1>
+            <p className="mt-3 max-w-xl text-lg text-white/95 drop-shadow-sm sm:text-xl">
+              Logistics tracking and shipment visibility for modern supply chains
+            </p>
+            <Link href="/track/sample" className="mt-6">
+              <Button
+                size="lg"
+                className="bg-accent text-accent-foreground hover:bg-accent/90 border-0"
+              >
+                Track a shipment
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="text-center font-sans text-muted-foreground">
+          Use the Quick Track bar above to enter a shipment or tracking ID.
+        </p>
+      </section>
     </div>
   );
 }
