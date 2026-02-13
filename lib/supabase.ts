@@ -22,6 +22,16 @@ export type Shipment = {
   sender_address: string | null;
   receiver_name: string | null;
   receiver_address: string | null;
+  receiver_email: string | null;
+  sender_first_name: string | null;
+  sender_last_name: string | null;
+  receiver_first_name: string | null;
+  receiver_last_name: string | null;
+  category: string | null;
+  origin_lat: number | null;
+  origin_lng: number | null;
+  dest_lat: number | null;
+  dest_lng: number | null;
   weight: number | null;
   service_type: string | null;
 };

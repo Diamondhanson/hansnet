@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { postStatusUpdate, type PostUpdateState } from "@/app/admin/(dashboard)/shipments/[id]/actions";
 
 const initialState: PostUpdateState = { error: null };
@@ -25,15 +25,28 @@ function nowForDatetimeLocal(): string {
   return d.toISOString().slice(0, 16);
 }
 
+function isoToDatetimeLocal(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function PostStatusUpdateForm({
   shipmentId,
   statusOptions,
+  initialEstimatedDelivery,
 }: {
   shipmentId: string;
   statusOptions: string[];
+  initialEstimatedDelivery?: string | null;
 }) {
   const [status, setStatus] = useState(statusOptions[0] ?? "pending");
   const [occurredAt, setOccurredAt] = useState(nowForDatetimeLocal);
+  const [estimatedDelivery, setEstimatedDelivery] = useState(() =>
+    isoToDatetimeLocal(initialEstimatedDelivery ?? null)
+  );
   const prevPending = useRef(false);
   const [state, formAction, isPending] = useActionState(
     (prev: PostUpdateState, formData: FormData) =>
@@ -66,15 +79,14 @@ export function PostStatusUpdateForm({
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
-        <Input
-          id="location"
-          name="location"
-          placeholder="e.g. New York Distribution Center"
-          className={inputClass}
-        />
-      </div>
+      <AddressAutocomplete
+        label="Location"
+        addressName="location"
+        latName="latitude"
+        lngName="longitude"
+        id="location"
+        placeholder="Start typing location…"
+      />
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <textarea
@@ -94,6 +106,17 @@ export function PostStatusUpdateForm({
           value={occurredAt}
           onChange={(e) => setOccurredAt(e.target.value)}
           className={`border-input h-9 w-full px-3 py-2 text-sm md:text-sm ${inputClass}`}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="estimated_delivery_date">Expected delivery</Label>
+        <input
+          type="datetime-local"
+          id="estimated_delivery_date"
+          name="estimated_delivery_date"
+          value={estimatedDelivery}
+          onChange={(e) => setEstimatedDelivery(e.target.value)}
+          className={`border-input h-9 w-full px-3 py-2 text-sm ${inputClass}`}
         />
       </div>
       {state.error && (

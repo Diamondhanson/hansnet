@@ -76,6 +76,27 @@ export default async function TrackPage({
   const updates = updatesData ?? [];
   const coords = getLatestCoordinates(updates);
 
+  const origin =
+    typeof shipment.origin_lat === "number" && typeof shipment.origin_lng === "number"
+      ? { lat: shipment.origin_lat, lng: shipment.origin_lng }
+      : null;
+  const destination =
+    typeof shipment.dest_lat === "number" && typeof shipment.dest_lng === "number"
+      ? { lat: shipment.dest_lat, lng: shipment.dest_lng }
+      : null;
+  const currentLocation = coords
+    ? { lat: coords.latitude, lng: coords.longitude }
+    : null;
+
+  const updatesWithCoords = updates.filter(
+    (u): u is typeof u & { latitude: number; longitude: number } =>
+      u.latitude != null && u.longitude != null
+  );
+  const routeWaypoints: { lat: number; lng: number }[] = [];
+  if (origin) routeWaypoints.push(origin);
+  for (const u of updatesWithCoords) routeWaypoints.push({ lat: u.latitude, lng: u.longitude });
+  if (destination) routeWaypoints.push(destination);
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -102,8 +123,10 @@ export default async function TrackPage({
         <Card className="border-default overflow-hidden p-0">
           <CardContent className="p-0">
             <MapLoader
-              latitude={coords?.latitude}
-              longitude={coords?.longitude}
+              origin={origin}
+              destination={destination}
+              currentLocation={currentLocation}
+              routeWaypoints={routeWaypoints.length >= 2 ? routeWaypoints : null}
               height="min-h-[450px]"
             />
           </CardContent>

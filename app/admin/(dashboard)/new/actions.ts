@@ -10,6 +10,18 @@ function generateTrackingId(): string {
   return `${prefix}-${part}-${rand}`;
 }
 
+function parseNum(value: FormDataEntryValue | null): number | null {
+  if (value === null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseEstimatedDelivery(value: FormDataEntryValue | null): string | null {
+  if (value === null || typeof value !== "string" || !value.trim()) return null;
+  const d = new Date(value.trim());
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 export type CreateShipmentState = {
   trackingId: string | null;
   error: string | null;
@@ -25,19 +37,23 @@ export async function createShipment(
   }
 
   const tracking_id = (formData.get("tracking_id") as string)?.trim();
-  const sender_name = (formData.get("sender_name") as string)?.trim() || null;
-  const sender_address =
-    (formData.get("sender_address") as string)?.trim() || null;
-  const receiver_name =
-    (formData.get("receiver_name") as string)?.trim() || null;
-  const receiver_address =
-    (formData.get("receiver_address") as string)?.trim() || null;
-  const weightRaw = formData.get("weight");
-  const weight =
-    weightRaw !== null && weightRaw !== ""
-      ? Number(weightRaw)
-      : null;
+  const sender_first_name = (formData.get("sender_first_name") as string)?.trim() || null;
+  const sender_last_name = (formData.get("sender_last_name") as string)?.trim() || null;
+  const receiver_first_name = (formData.get("receiver_first_name") as string)?.trim() || null;
+  const receiver_last_name = (formData.get("receiver_last_name") as string)?.trim() || null;
+  const sender_name = [sender_first_name, sender_last_name].filter(Boolean).join(" ") || null;
+  const receiver_name = [receiver_first_name, receiver_last_name].filter(Boolean).join(" ") || null;
+  const sender_address = (formData.get("sender_address") as string)?.trim() || null;
+  const receiver_address = (formData.get("receiver_address") as string)?.trim() || null;
+  const weight = parseNum(formData.get("weight"));
   const service_type = (formData.get("service_type") as string)?.trim() || null;
+  const category = (formData.get("category") as string)?.trim() || null;
+  const origin_lat = parseNum(formData.get("origin_lat"));
+  const origin_lng = parseNum(formData.get("origin_lng"));
+  const dest_lat = parseNum(formData.get("dest_lat"));
+  const dest_lng = parseNum(formData.get("dest_lng"));
+  const estimated_delivery_date = parseEstimatedDelivery(formData.get("estimated_delivery_date"));
+  const receiver_email = (formData.get("receiver_email") as string)?.trim() || null;
 
   if (!tracking_id) {
     return { trackingId: null, error: "Shipment ID is required." };
@@ -52,8 +68,19 @@ export async function createShipment(
       sender_address,
       receiver_name,
       receiver_address,
+      sender_first_name,
+      sender_last_name,
+      receiver_first_name,
+      receiver_last_name,
+      category,
+      origin_lat,
+      origin_lng,
+      dest_lat,
+      dest_lng,
       weight,
       service_type: service_type || "land",
+      estimated_delivery_date,
+      receiver_email,
     })
     .select("tracking_id")
     .single();

@@ -97,7 +97,11 @@ export default async function AdminShipmentDetailPage({
             </h2>
           </CardHeader>
           <CardContent className="pt-4">
-            <PostStatusUpdateForm shipmentId={id} statusOptions={STATUS_OPTIONS} />
+            <PostStatusUpdateForm
+              shipmentId={id}
+              statusOptions={STATUS_OPTIONS}
+              initialEstimatedDelivery={shipment.estimated_delivery_date ?? undefined}
+            />
           </CardContent>
         </Card>
 

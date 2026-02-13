@@ -14,6 +14,18 @@ function parseOccurredAt(value: string | null): string {
   return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
 }
 
+function parseEstimatedDelivery(value: FormDataEntryValue | null): string | null {
+  if (value === null || typeof value !== "string" || !value.trim()) return null;
+  const d = new Date(value.trim());
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+function parseNum(value: FormDataEntryValue | null): number | null {
+  if (value === null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 export async function postStatusUpdate(
   _prev: PostUpdateState,
   formData: FormData,
@@ -28,6 +40,9 @@ export async function postStatusUpdate(
   const location = (formData.get("location") as string)?.trim() || null;
   const description = (formData.get("description") as string)?.trim() || null;
   const occurredAt = parseOccurredAt(formData.get("occurred_at") as string | null);
+  const latitude = parseNum(formData.get("latitude"));
+  const longitude = parseNum(formData.get("longitude"));
+  const estimated_delivery_date = parseEstimatedDelivery(formData.get("estimated_delivery_date"));
 
   if (!status) {
     return { error: "Status is required." };
@@ -39,6 +54,8 @@ export async function postStatusUpdate(
     status,
     location,
     description,
+    latitude,
+    longitude,
   });
 
   if (insertError) {
@@ -47,7 +64,11 @@ export async function postStatusUpdate(
 
   await supabase
     .from("shipments")
-    .update({ status, updated_at: occurredAt })
+    .update({
+      status,
+      updated_at: occurredAt,
+      estimated_delivery_date: estimated_delivery_date ?? null,
+    })
     .eq("id", shipmentId);
 
   revalidatePath(`/admin/shipments/${shipmentId}`);

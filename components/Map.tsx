@@ -2,9 +2,18 @@
 
 import { useEffect, useMemo } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  CircleMarker,
+  Polyline,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { cn } from "@/lib/utils";
+
+export type LatLng = { lat: number; lng: number };
 
 function FixLeafletDefaultIcon() {
   useEffect(() => {
@@ -46,9 +55,43 @@ function createCargoIcon() {
   });
 }
 
+function FitBoundsToRoute({
+  origin,
+  destination,
+}: {
+  origin: LatLng;
+  destination: LatLng;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    const bounds = L.latLngBounds(
+      [origin.lat, origin.lng],
+      [destination.lat, destination.lng]
+    );
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }, [map, origin, destination]);
+  return null;
+}
+
+function FitBoundsToWaypoints({ waypoints }: { waypoints: LatLng[] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (waypoints.length < 2) return;
+    const bounds = L.latLngBounds(
+      waypoints.map((w) => [w.lat, w.lng] as [number, number])
+    );
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }, [map, waypoints]);
+  return null;
+}
+
 export interface MapProps {
   latitude?: number;
   longitude?: number;
+  origin?: LatLng | null;
+  destination?: LatLng | null;
+  currentLocation?: LatLng | null;
+  routeWaypoints?: LatLng[] | null;
   className?: string;
   height?: string;
 }
@@ -56,23 +99,50 @@ export interface MapProps {
 export function Map({
   latitude,
   longitude,
+  origin,
+  destination,
+  currentLocation,
+  routeWaypoints,
   className,
-  height = "min-h-[400px]",
+  height = "min-h-[450px]",
 }: MapProps) {
-  const hasMarker =
-    typeof latitude === "number" && typeof longitude === "number";
   const cargoIcon = useMemo(createCargoIcon, []);
 
-  const center: [number, number] = hasMarker
-    ? [latitude!, longitude!]
-    : [51.505, -0.09];
+  const hasOrigin = origin && typeof origin.lat === "number" && typeof origin.lng === "number";
+  const hasDestination =
+    destination && typeof destination.lat === "number" && typeof destination.lng === "number";
+  const hasWaypoints = routeWaypoints && routeWaypoints.length >= 2;
+  const hasRoute = hasWaypoints || (hasOrigin && hasDestination);
 
+  const live =
+    currentLocation &&
+    typeof currentLocation.lat === "number" &&
+    typeof currentLocation.lng === "number"
+      ? currentLocation
+      : typeof latitude === "number" && typeof longitude === "number"
+        ? { lat: latitude, lng: longitude }
+        : null;
+
+  const center: [number, number] = hasWaypoints
+    ? [
+        routeWaypoints[0].lat,
+        routeWaypoints[0].lng,
+      ]
+    : hasOrigin && hasDestination
+      ? [(origin!.lat + destination!.lat) / 2, (origin!.lng + destination!.lng) / 2]
+      : live
+        ? [live.lat, live.lng]
+        : [51.505, -0.09];
+
+  const zoom = hasRoute ? 6 : live ? 14 : 2;
+
+  const heightClass = height === "min-h-[450px]" ? "h-[450px] min-h-[450px]" : height;
   return (
-    <div className={cn("w-full", height, className)}>
+    <div className={cn("w-full rounded-none", heightClass, className)}>
       <MapContainer
         center={center}
-        zoom={hasMarker ? 14 : 2}
-        className="h-full w-full border border-default"
+        zoom={zoom}
+        className="h-full w-full rounded-none border border-default"
         scrollWheelZoom
       >
         <FixLeafletDefaultIcon />
@@ -80,8 +150,43 @@ export function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {hasMarker && (
-          <Marker position={[latitude!, longitude!]} icon={cargoIcon} />
+        {hasOrigin && (
+          <CircleMarker
+            center={[origin!.lat, origin!.lng]}
+            pathOptions={{ color: "#0f172a", fillColor: "#22c55e", fillOpacity: 1, weight: 2 }}
+            radius={10}
+          />
+        )}
+        {hasDestination && (
+          <CircleMarker
+            center={[destination!.lat, destination!.lng]}
+            pathOptions={{ color: "#0f172a", fillColor: "#ef4444", fillOpacity: 1, weight: 2 }}
+            radius={10}
+          />
+        )}
+        {hasWaypoints && (
+          <>
+            <Polyline
+              positions={routeWaypoints!.map((w) => [w.lat, w.lng] as [number, number])}
+              pathOptions={{ color: "#0F172A", weight: 3 }}
+            />
+            <FitBoundsToWaypoints waypoints={routeWaypoints!} />
+          </>
+        )}
+        {!hasWaypoints && hasOrigin && hasDestination && (
+          <>
+            <Polyline
+              positions={[
+                [origin!.lat, origin!.lng],
+                [destination!.lat, destination!.lng],
+              ]}
+              pathOptions={{ color: "#0F172A", weight: 3 }}
+            />
+            <FitBoundsToRoute origin={origin!} destination={destination!} />
+          </>
+        )}
+        {live && (
+          <Marker position={[live.lat, live.lng]} icon={cargoIcon} />
         )}
       </MapContainer>
     </div>
