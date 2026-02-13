@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { COMPANY_NAME, SUPPORT_EMAIL } from "@/constants/config";
+import { SERVICES } from "@/constants/services";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -11,11 +12,11 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="font-mono text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
+      <h1 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
         About Us
       </h1>
 
-      <section className="mt-8 space-y-6 border-b border-default pb-10">
+      <section className="mt-8 space-y-6 border-b border-default p-10">
         <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
           Who We Are
         </h2>
@@ -39,10 +40,27 @@ export default function AboutPage() {
           Transparency, reliability, and customer focus drive everything we do. We aim to make
           logistics simple and visible so you can run your business with confidence.
         </p>
+        <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl mt-10">
+          Our Services
+        </h2>
+        <p className="max-w-3xl leading-relaxed text-foreground mt-3">
+          We offer warehouse, freight, and specialized transport so you have one partner for
+          storage, ocean and road freight, air cargo, pet relocation, and vehicle shipping.
+        </p>
+        <ul className="mt-6 space-y-4 max-w-3xl">
+          {SERVICES.map(({ id, title, description }) => (
+            <li key={id} className="rounded-none border border-default bg-card p-10">
+              <h3 className="font-mono text-base font-semibold uppercase tracking-wide text-accent">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mt-10">
-        <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
+        <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-accent sm:text-2xl">
           Policies
         </h2>
         <div className="mt-6 grid gap-6 sm:grid-cols-1 lg:grid-cols-2">

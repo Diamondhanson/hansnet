@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { BASE_URL } from "@/constants/config";
+import { sendEmail } from "@/lib/email";
+import { shipmentUpdated } from "@/lib/email-templates";
 
 export type PostUpdateState = {
   error: string | null;
@@ -70,6 +73,31 @@ export async function postStatusUpdate(
       estimated_delivery_date: estimated_delivery_date ?? null,
     })
     .eq("id", shipmentId);
+
+  const { data: shipment } = await supabase
+    .from("shipments")
+    .select("receiver_email, tracking_id")
+    .eq("id", shipmentId)
+    .single();
+
+  if (shipment?.receiver_email && shipment?.tracking_id) {
+    const trackingUrl = `${BASE_URL}/track/${shipment.tracking_id}`;
+    const html = shipmentUpdated({
+      trackingId: shipment.tracking_id,
+      trackingUrl,
+      status,
+      location,
+      description,
+      occurredAt,
+    });
+    sendEmail({
+      to: shipment.receiver_email,
+      subject: `Shipment update: ${shipment.tracking_id} – ${status}`,
+      html,
+    }).then((r) => {
+      if (!r.success) console.error("Shipment updated email failed:", r.error);
+    });
+  }
 
   revalidatePath(`/admin/shipments/${shipmentId}`);
   revalidatePath("/admin");

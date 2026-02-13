@@ -1,7 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Plane, Ship, Truck } from "lucide-react";
+import {
+  Plane,
+  Ship,
+  Truck,
+  Warehouse,
+  Car,
+  Dog,
+  FileText,
+  Package,
+  PackagePlus,
+  Users,
+  Globe,
+  TrendingUp,
+} from "lucide-react";
 import { COMPANY_NAME, SUPPORT_EMAIL } from "@/constants/config";
+import { SERVICES } from "@/constants/services";
 import { Button } from "@/components/ui/button";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { AnimatedSection } from "@/components/home/AnimatedSection";
@@ -34,6 +48,49 @@ const CAPABILITIES = [
     title: "Ground Transport",
     description: "Domestic and cross-border road freight with hub-to-hub visibility.",
   },
+] as const;
+
+const SERVICE_ICONS: Record<string, typeof Plane> = {
+  warehouse: Warehouse,
+  "ocean-freight": Ship,
+  "road-freight": Truck,
+  "air-freight": Plane,
+  "pet-transport": Dog,
+  "auto-transport": Car,
+};
+
+const PROCESS_STEPS = [
+  {
+    icon: FileText,
+    title: "Get Your Quote",
+    description:
+      "Share your origin, destination, and cargo details. We respond with a clear quote and service options so you can choose what fits.",
+  },
+  {
+    icon: Package,
+    title: "We Pick Up",
+    description:
+      "We collect your goods at your location—warehouse, office, or home. You get a pickup confirmation and tracking from day one.",
+  },
+  {
+    icon: PackagePlus,
+    title: "Pack & Prepare",
+    description:
+      "We handle packaging, labeling, and documentation. Your shipment is secured and ready for the chosen mode of transport.",
+  },
+  {
+    icon: Truck,
+    title: "Transport & Deliver",
+    description:
+      "We move your goods by road, air, or ocean and deliver to the final address. Track the journey in real time until it arrives.",
+  },
+] as const;
+
+const STATS = [
+  { icon: Package, value: "50K+", label: "Products Shipped" },
+  { icon: Users, value: "2,500+", label: "Satisfied Clients" },
+  { icon: Globe, value: "45+", label: "Countries Served" },
+  { icon: TrendingUp, value: "98%", label: "On-Time Delivery" },
 ] as const;
 
 export default function Home() {
@@ -81,23 +138,85 @@ export default function Home() {
         <AboutCarousel />
       </AnimatedSection>
 
-      {/* Core Capabilities */}
-      <AnimatedSection delay={0.15} className="border-b border-default">
+      {/* Our Services */}
+      <AnimatedSection delay={0.14} className="border-b border-default">
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
-            Core Capabilities
+          <h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
+            Our Services
           </h2>
+          <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+            From warehouse and freight to specialized pet and vehicle transport, we offer end-to-end
+            logistics with tracking and support at every step.
+          </p>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {CAPABILITIES.map(({ icon: Icon, title, description }) => (
+            {SERVICES.map(({ id, title, description }) => {
+              const Icon = SERVICE_ICONS[id];
+              return (
+                <div
+                  key={id}
+                  className="min-h-[200px] rounded-none border border-default border-t-4 border-t-accent bg-card p-8"
+                >
+                  {Icon && <Icon className="size-12 text-primary" aria-hidden />}
+                  <h3 className="mt-5 font-mono text-xl font-bold uppercase tracking-tight text-accent">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* By the numbers */}
+      <AnimatedSection delay={0.15} className="border-b border-default">
+        <section className="relative bg-muted/30 bg-blueprint py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
+            By the Numbers
+            </h2>
+            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {STATS.map(({ icon: Icon, value, label }) => (
+                <div
+                  key={label}
+                  className="flex flex-col items-center text-center sm:items-start sm:text-left"
+                >
+                  <Icon className="size-10 text-primary" aria-hidden />
+                  <span className="mt-3 font-mono text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+                    {value}
+                  </span>
+                  <span className="mt-1 text-sm font-medium text-muted-foreground">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </AnimatedSection>
+
+      {/* Our Process */}
+      <AnimatedSection delay={0.16} className="border-b border-default">
+        <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
+            Our Process
+          </h2>
+          <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+            From your first quote to final delivery—we handle pickup, packaging, and transport so you
+            have one partner and full visibility.
+          </p>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PROCESS_STEPS.map(({ icon: Icon, title, description }, i) => (
               <div
                 key={title}
-                className="min-h-[220px] rounded-none border border-default border-t-4 border-t-accent bg-card p-10"
+                className="rounded-none border border-default border-t-4 border-t-accent bg-card p-8"
               >
-                <Icon className="size-14 text-primary" aria-hidden />
-                <h3 className="mt-6 font-mono text-lg font-bold uppercase tracking-tight text-primary">
+                <span className="font-mono text-xs font-semibold uppercase tracking-wider text-accent">
+                  Step {i + 1}
+                </span>
+                <Icon className="mt-4 size-12 text-primary" aria-hidden />
+                <h3 className="mt-5 font-mono text-xl font-bold uppercase tracking-tight text-accent">
                   {title}
                 </h3>
-                <p className="mt-3 text-base text-muted-foreground">{description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>
@@ -108,8 +227,8 @@ export default function Home() {
       <AnimatedSection delay={0.2} className="border-b border-default">
         <section className="relative bg-muted/30 bg-blueprint py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
-              Get a Freight Quote
+<h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
+            Get a Freight Quote
             </h2>
             <HomeQuoteForm />
           </div>
@@ -119,7 +238,7 @@ export default function Home() {
       {/* Testimonials */}
       <AnimatedSection delay={0.25} className="border-b border-default">
         <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
+          <h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
             What Our Clients Say
           </h2>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -154,7 +273,7 @@ export default function Home() {
       {/* Contact */}
       <AnimatedSection delay={0.3}>
         <section id="contact" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
+          <h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
             Contact
           </h2>
           <p className="mt-4 text-muted-foreground">

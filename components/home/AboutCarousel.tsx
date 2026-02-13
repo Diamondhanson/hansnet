@@ -6,18 +6,10 @@ import { useEffect, useState } from "react";
 const ROTATE_MS = 3000;
 
 const IMAGES = [
-  {
-    src: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800",
-    alt: "Warehouse workers and logistics operations",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?auto=format&fit=crop&q=80&w=800",
-    alt: "Shipping and warehouse distribution",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1605745341112-85968b19335b?auto=format&fit=crop&q=80&w=800",
-    alt: "Delivery and freight handling",
-  },
+  { src: "/shipping1.jpg", alt: "Delivery truck and road freight" },
+  { src: "/shipping2.jpg", alt: "Container ships and cranes at port" },
+  { src: "/shipping3.jpg", alt: "Air cargo and ground logistics" },
+  { src: "/shipping4.jpg", alt: "Delivery and shipping" },
 ];
 
 export function AboutCarousel() {
@@ -30,25 +22,38 @@ export function AboutCarousel() {
     return () => clearInterval(id);
   }, []);
 
-  const current = IMAGES[index];
-
   return (
     <section id="about" className="border-b border-default">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-none border-2 border-default bg-muted">
-            <Image
-              key={current.src}
-              src={current.src}
-              alt={current.alt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority={index === 0}
-            />
+          <div className="relative aspect-[4/3] w-full min-h-[280px] sm:min-h-[340px] overflow-hidden rounded-none border-2 border-default bg-muted">
+            <div
+              className="absolute inset-0 flex transition-transform duration-500 ease-in-out"
+              style={{
+                width: `${IMAGES.length * 100}%`,
+                transform: `translateX(-${index * (100 / IMAGES.length)}%)`,
+              }}
+            >
+              {IMAGES.map((img, i) => (
+                <div
+                  key={img.src}
+                  className="relative h-full flex-shrink-0"
+                  style={{ width: `${100 / IMAGES.length}%` }}
+                >
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    priority={i === 0}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
           <div>
-            <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
+            <h2 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
               About Us
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">

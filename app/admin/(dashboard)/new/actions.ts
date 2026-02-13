@@ -2,6 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { BASE_URL } from "@/constants/config";
+import { sendEmail } from "@/lib/email";
+import { shipmentCreated } from "@/lib/email-templates";
 
 function generateTrackingId(): string {
   const prefix = "SHIP";
@@ -87,6 +90,25 @@ export async function createShipment(
 
   if (error) {
     return { trackingId: null, error: error.message };
+  }
+
+  if (receiver_email) {
+    const trackingUrl = `${BASE_URL}/track/${data.tracking_id}`;
+    const summary =
+      [sender_address, receiver_address].filter(Boolean).join(" → ") || "Shipment created.";
+    const html = shipmentCreated({
+      trackingId: data.tracking_id,
+      trackingUrl,
+      receiverName: receiver_name,
+      summary,
+    });
+    sendEmail({
+      to: receiver_email,
+      subject: `Shipment created: ${data.tracking_id}`,
+      html,
+    }).then((r) => {
+      if (!r.success) console.error("Shipment created email failed:", r.error);
+    });
   }
 
   revalidatePath("/admin");

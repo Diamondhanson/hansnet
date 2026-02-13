@@ -1,5 +1,8 @@
 "use server";
 
+import { sendEmail, getAdminEmail } from "@/lib/email";
+import { contactFormReceived } from "@/lib/email-templates";
+
 export type ContactState = {
   error: string | null;
   success?: boolean;
@@ -31,6 +34,21 @@ export async function submitContactForm(
     return { error: "Please enter a message (at least 10 characters)." };
   }
 
-  // Placeholder: no email send yet; ready for Resend/SendGrid etc.
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) {
+    console.warn("Contact form: ADMIN_EMAIL not set; skipping send.");
+    return { error: null, success: true };
+  }
+
+  const html = contactFormReceived({ name, email, subject, message });
+  const result = await sendEmail({
+    to: adminEmail,
+    subject: `Contact: ${subject}`,
+    html,
+  });
+
+  if (!result.success) {
+    return { error: "Failed to send. Try again." };
+  }
   return { error: null, success: true };
 }
