@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { BASE_URL } from "@/constants/config";
+import { BASE_URL, SUPPORT_EMAIL } from "@/constants/config";
 import { sendEmail } from "@/lib/email";
 import { shipmentCreated } from "@/lib/email-templates";
 
@@ -96,19 +96,34 @@ export async function createShipment(
     const trackingUrl = `${BASE_URL}/track/${data.tracking_id}`;
     const summary =
       [sender_address, receiver_address].filter(Boolean).join(" → ") || "Shipment created.";
+    const estimatedDeliveryFormatted = estimated_delivery_date
+      ? new Date(estimated_delivery_date).toLocaleDateString(undefined, {
+          dateStyle: "medium",
+          timeZone: "UTC",
+        })
+      : null;
     const html = shipmentCreated({
       trackingId: data.tracking_id,
       trackingUrl,
       receiverName: receiver_name,
       summary,
+      category: category || null,
+      serviceType: service_type || null,
+      weight: weight != null ? String(weight) : null,
+      estimatedDelivery: estimatedDeliveryFormatted,
+      supportEmail: SUPPORT_EMAIL,
     });
-    sendEmail({
+    const result = await sendEmail({
       to: receiver_email,
       subject: `Shipment created: ${data.tracking_id}`,
       html,
-    }).then((r) => {
-      if (!r.success) console.error("Shipment created email failed:", r.error);
     });
+    if (!result.success) {
+      console.error(
+        "[createShipment] Client email failed. Ensure RESEND_API_KEY and EMAIL_FROM are set in production.",
+        result.error
+      );
+    }
   }
 
   revalidatePath("/admin");

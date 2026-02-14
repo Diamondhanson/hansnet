@@ -70,13 +70,23 @@ export function shipmentCreated(data: {
   trackingUrl: string;
   receiverName: string | null;
   summary: string;
+  category: string | null;
+  serviceType: string | null;
+  weight: string | null;
+  estimatedDelivery: string | null;
+  supportEmail: string;
 }): string {
   const content = `
     <p style="margin:0 0 16px;font-size:15px;">Your shipment has been created.</p>
     ${data.receiverName ? section("Recipient", data.receiverName) : ""}
     ${section("Tracking ID", data.trackingId)}
+    ${data.category ? section("Category", data.category) : ""}
+    ${data.serviceType ? section("Service", data.serviceType) : ""}
+    ${data.weight != null && data.weight !== "" ? section("Weight", data.weight) : ""}
+    ${data.estimatedDelivery ? section("Estimated delivery", data.estimatedDelivery) : ""}
     <p style="margin:16px 0 0;font-size:14px;">${data.summary}</p>
     <p style="margin:20px 0 0;"><a href="${data.trackingUrl}" style="display:inline-block;padding:12px 20px;background:${PRIMARY};color:#fff;text-decoration:none;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;letter-spacing:0.05em;">VIEW TRACKING</a></p>
+    <p style="margin:24px 0 0;font-size:14px;color:${MUTED};">If you have any questions, contact us at <a href="mailto:${data.supportEmail}" style="color:${PRIMARY};font-weight:600;">${data.supportEmail}</a>.</p>
   `;
   return baseLayout(content);
 }
