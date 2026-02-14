@@ -21,13 +21,20 @@ const inputClass =
 
 const initialState: QuoteSubmitState = { error: null };
 
+const WEIGHT_UNIT_OPTIONS = [
+  { value: "kg", label: "KG" },
+  { value: "lb", label: "LB" },
+] as const;
+
 export function HomeQuoteForm() {
   const [type, setType] = useState("");
+  const [weightUnit, setWeightUnit] = useState<"kg" | "lb">("kg");
   const [state, formAction] = useFormState(submitQuoteRequest, initialState);
 
   return (
     <form action={formAction}>
       <input type="hidden" name="type" value={type} />
+      <input type="hidden" name="weight_unit" value={weightUnit} />
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <div className="space-y-4">
           <h3 className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
@@ -72,14 +79,28 @@ export function HomeQuoteForm() {
             <Label htmlFor="quote-weight" className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
               Weight
             </Label>
-            <Input
-              id="quote-weight"
-              name="weight"
-              type="text"
-              placeholder="0"
-              className={inputClass}
-              aria-label="Weight"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="quote-weight"
+                name="weight"
+                type="text"
+                placeholder="0"
+                className={inputClass}
+                aria-label="Weight"
+              />
+              <Select value={weightUnit} onValueChange={(v) => setWeightUnit(v as "kg" | "lb")}>
+                <SelectTrigger className={`${inputClass} w-[100px] shrink-0`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEIGHT_UNIT_OPTIONS.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="space-y-2">
             <Label className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">

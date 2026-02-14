@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -10,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { ShipmentRowActions } from "./ShipmentRowActions";
 
 export default async function AdminShipmentsPage() {
   const supabase = await createClient();
@@ -104,30 +103,7 @@ export default async function AdminShipmentsPage() {
                         : "—"}
                     </TableCell>
                     <TableCell className="border-default">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-default"
-                          asChild
-                        >
-                          <Link href={`/admin/shipments/${s.id}`}>View</Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="border-default"
-                          asChild
-                        >
-                          <Link
-                            href={`/track/${encodeURIComponent(s.tracking_id)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Track
-                          </Link>
-                        </Button>
-                      </div>
+                      <ShipmentRowActions shipmentId={s.id} trackingId={s.tracking_id} />
                     </TableCell>
                   </TableRow>
                 ))

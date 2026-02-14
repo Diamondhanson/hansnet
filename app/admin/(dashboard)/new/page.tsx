@@ -43,6 +43,7 @@ export default function AdminNewShipmentPage() {
   const [trackingIdInput, setTrackingIdInput] = useState("");
   const [serviceType, setServiceType] = useState("land");
   const [category, setCategory] = useState(SHIPMENT_TYPE_OPTIONS[0]?.value ?? "general");
+  const [weightUnit, setWeightUnit] = useState<"kg" | "lb">("kg");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trackingUrl, setTrackingUrl] = useState("");
 
@@ -187,14 +188,26 @@ export default function AdminNewShipmentPage() {
                 <Label htmlFor="weight" className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
                   Weight
                 </Label>
-                <Input
-                  id="weight"
-                  name="weight"
-                  type="number"
-                  step="any"
-                  placeholder="0"
-                  className={inputClass}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    step="any"
+                    placeholder="0"
+                    className={inputClass}
+                  />
+                  <input type="hidden" name="weight_unit" value={weightUnit} />
+                  <Select value={weightUnit} onValueChange={(v) => setWeightUnit(v as "kg" | "lb")}>
+                    <SelectTrigger className={`${inputClass} w-[100px] shrink-0`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="kg">KG</SelectItem>
+                      <SelectItem value="lb">LB</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">

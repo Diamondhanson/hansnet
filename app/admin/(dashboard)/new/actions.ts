@@ -49,6 +49,7 @@ export async function createShipment(
   const sender_address = (formData.get("sender_address") as string)?.trim() || null;
   const receiver_address = (formData.get("receiver_address") as string)?.trim() || null;
   const weight = parseNum(formData.get("weight"));
+  const weight_unit = ((formData.get("weight_unit") as string)?.trim() || "kg").toLowerCase();
   const service_type = (formData.get("service_type") as string)?.trim() || null;
   const category = (formData.get("category") as string)?.trim() || null;
   const origin_lat = parseNum(formData.get("origin_lat"));
@@ -81,6 +82,7 @@ export async function createShipment(
       dest_lat,
       dest_lng,
       weight,
+      weight_unit: weight_unit === "lb" ? "lb" : "kg",
       service_type: service_type || "land",
       estimated_delivery_date,
       receiver_email,
@@ -109,7 +111,10 @@ export async function createShipment(
       summary,
       category: category || null,
       serviceType: service_type || null,
-      weight: weight != null ? String(weight) : null,
+      weight:
+        weight != null
+          ? `${weight} ${(weight_unit || "kg").toUpperCase()}`
+          : null,
       estimatedDelivery: estimatedDeliveryFormatted,
       supportEmail: SUPPORT_EMAIL,
     });

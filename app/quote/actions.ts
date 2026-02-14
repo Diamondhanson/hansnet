@@ -13,6 +13,7 @@ export async function submitQuoteRequest(
   const origin = (formData.get("origin") as string)?.trim() ?? "";
   const destination = (formData.get("destination") as string)?.trim() ?? "";
   const weight = (formData.get("weight") as string)?.trim() ?? "";
+  const weightUnit = ((formData.get("weight_unit") as string)?.trim() || "kg").toLowerCase();
   const type = (formData.get("type") as string)?.trim() ?? "";
   const email = (formData.get("email") as string)?.trim() ?? "";
 
@@ -26,7 +27,8 @@ export async function submitQuoteRequest(
     redirect("/quote");
   }
 
-  const html = quoteRequestReceived({ origin, destination, weight, type, email });
+  const weightDisplay = weight ? `${weight} ${weightUnit === "lb" ? "LB" : "KG"}` : "";
+  const html = quoteRequestReceived({ origin, destination, weight: weightDisplay, type, email });
   const result = await sendEmail({
     to: adminEmail,
     subject: "New freight quote request (website)",
