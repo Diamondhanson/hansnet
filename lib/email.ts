@@ -1,10 +1,18 @@
 import { Resend } from "resend";
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const DEFAULT_FROM = "HANSNET LOGISTICS <onboarding@resend.dev>";
 
-const from = process.env.EMAIL_FROM ?? "HANSNET LOGISTICS <onboarding@resend.dev>";
+/** Resend requires `email@domain.com` or `Name <email@domain.com>`. Normalize env value. */
+function normalizeFrom(raw: string | undefined): string {
+  const s = raw?.trim();
+  if (!s) return DEFAULT_FROM;
+  if (/^[^\s<]+@[^\s>]+$/.test(s)) return `HANSNET LOGISTICS <${s}>`;
+  const match = s.match(/^(.+?)\s*<([^>]+@[^>]+)>$/);
+  if (match) return `${match[1].trim()} <${match[2].trim()}>`;
+  const emailMatch = s.match(/([^\s<>]+@[^\s<>]+)/);
+  if (emailMatch) return `HANSNET LOGISTICS <${emailMatch[1]}>`;
+  return DEFAULT_FROM;
+}
 
 export type SendEmailOptions = {
   to: string;
@@ -17,10 +25,16 @@ export async function sendEmail({
   subject,
   html,
 }: SendEmailOptions): Promise<{ success: true } | { success: false; error: string }> {
-  if (!resend) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = normalizeFrom(process.env.EMAIL_FROM);
+
+  if (!apiKey?.trim()) {
     console.warn("Resend: RESEND_API_KEY not set; skipping send.");
     return { success: false, error: "Email not configured." };
   }
+
+  const resend = new Resend(apiKey.trim());
+
   try {
     const { error } = await resend.emails.send({
       from,

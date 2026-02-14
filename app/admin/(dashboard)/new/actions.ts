@@ -113,17 +113,24 @@ export async function createShipment(
       estimatedDelivery: estimatedDeliveryFormatted,
       supportEmail: SUPPORT_EMAIL,
     });
+    console.warn("[createShipment] Sending client email for", data.tracking_id);
     const result = await sendEmail({
       to: receiver_email,
       subject: `Shipment created: ${data.tracking_id}`,
       html,
     });
-    if (!result.success) {
+    if (result.success) {
+      console.warn("[createShipment] Client email sent for", data.tracking_id);
+    } else {
       console.error(
-        "[createShipment] Client email failed. Ensure RESEND_API_KEY and EMAIL_FROM are set in production.",
+        "[createShipment] Client email failed for",
+        data.tracking_id,
+        "error:",
         result.error
       );
     }
+  } else {
+    console.warn("[createShipment] No receiver_email; skipping client email for", data.tracking_id);
   }
 
   revalidatePath("/admin");
