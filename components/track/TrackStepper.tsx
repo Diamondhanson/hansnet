@@ -31,6 +31,22 @@ export function TrackStepper({ updates }: { updates: ShipmentUpdate[] }) {
     );
   }
 
+  function StepContent({ update }: { update: (typeof sorted)[0] }) {
+    return (
+      <>
+        <p className="text-xs text-muted-foreground">{formatDate(update.occurred_at)}</p>
+        {update.location && (
+          <p className="font-mono text-xs font-medium text-foreground">{update.location}</p>
+        )}
+        {update.description && (
+          <p className="mt-0.5 text-xs text-muted-foreground" title={update.description}>
+            {update.description}
+          </p>
+        )}
+      </>
+    );
+  }
+
   return (
     <Card className="border-default w-full">
       <CardHeader>
@@ -39,8 +55,26 @@ export function TrackStepper({ updates }: { updates: ShipmentUpdate[] }) {
         </h3>
       </CardHeader>
       <CardContent className="pt-2 pb-4">
-        <div className="relative flex w-full items-start">
-          {/* Horizontal progress track behind dots (centered with 16px dots) */}
+        {/* Vertical layout: small screens */}
+        <div className="relative flex flex-col md:hidden">
+          <div
+            className="absolute left-2 top-0 bottom-0 w-0.5 bg-primary"
+            aria-hidden
+          />
+          {sorted.map((update) => (
+            <div key={update.id} className="flex flex-row items-start gap-3 py-2">
+              <div className="flex w-4 shrink-0 justify-center">
+                <div className="relative z-10 size-4 shrink-0 rounded-full border-2 border-primary bg-background" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <StepContent update={update} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Horizontal layout: md and up */}
+        <div className="relative hidden w-full items-start md:flex">
           <div
             className="absolute left-0 right-0 top-2 h-0.5 bg-border"
             aria-hidden

@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MapLoader } from "@/components/track/MapLoader";
 import { ShareTrackingButton } from "@/components/track/ShareTrackingButton";
 import { TrackNotFound } from "@/components/track/TrackNotFound";
@@ -15,6 +15,22 @@ function formatDeliveryDate(iso: string | null) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+function formatWeight(
+  weight: number | string | null | undefined,
+  weightUnit: string | null | undefined
+): string | null {
+  if (weight == null || weight === "") return null;
+  const n = typeof weight === "string" ? parseFloat(weight) : weight;
+  if (!Number.isFinite(n)) return null;
+  const unit = (weightUnit ?? "kg").toString().toUpperCase();
+  return `${n} ${unit}`;
+}
+
+function formatServiceType(value: string | null | undefined): string {
+  if (!value) return "—";
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 
 function getLatestCoordinates(
@@ -117,6 +133,56 @@ export default async function TrackPage({
       </div>
 
       <div className="flex flex-col gap-6">
+        <Card className="border-default w-full">
+          <CardHeader className="border-b border-default py-4">
+            <h2 className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
+              Shipment details
+            </h2>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="font-mono text-muted-foreground">Sender</dt>
+                <dd className="font-mono font-medium">{shipment.sender_name ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Sender address</dt>
+                <dd className="font-mono font-medium">{shipment.sender_address ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Receiver</dt>
+                <dd className="font-mono font-medium">{shipment.receiver_name ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Receiver address</dt>
+                <dd className="font-mono font-medium">{shipment.receiver_address ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Weight</dt>
+                <dd className="font-mono font-medium">
+                  {formatWeight(shipment.weight, shipment.weight_unit) ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Service type</dt>
+                <dd className="font-mono font-medium">
+                  {formatServiceType(shipment.service_type)}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Category</dt>
+                <dd className="font-mono font-medium">{shipment.category ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Estimated delivery</dt>
+                <dd className="font-mono font-medium">
+                  {formatDeliveryDate(shipment.estimated_delivery_date)}
+                </dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
+
         <div className="w-full">
           <TrackStepper updates={updates} />
         </div>
