@@ -13,7 +13,7 @@ export function Navbar() {
       <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="flex items-center rounded-sm px-2 py-2 -mx-2 -my-2 transition-colors duration-200 hover:bg-accent/15"
+          className="flex items-center rounded-sm px-2 py-2 -mx-2 -my-2 transition-colors duration-200"
         >
           <Image
             src="/logo.png"
