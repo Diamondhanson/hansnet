@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { COMPANY_NAME, SUPPORT_EMAIL } from "@/constants/config";
+import { COMPANY_NAME, SUPPORT_EMAIL, BASE_URL } from "@/constants/config";
 import { Button } from "@/components/ui/button";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { faqPageSchema, breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: `FAQ – ${COMPANY_NAME}`,
-  description: `Common questions about ${COMPANY_NAME} freight quotes, shipment tracking, services, and support.`,
+  title: "FAQ",
+  description:
+    "Common questions about freight quotes, shipment tracking, customs clearance, and logistics support. Find answers for getting started and delivery.",
+  alternates: { canonical: "/faq" },
+  openGraph: {
+    title: "FAQ | HANSNET LOGISTICS",
+    description: "Common questions about freight quotes, shipment tracking, customs clearance, and logistics support.",
+    url: "/faq",
+  },
+  twitter: {
+    title: "FAQ | HANSNET LOGISTICS",
+    description: "Common questions about freight quotes, shipment tracking, and customs clearance.",
+  },
 };
 
 type FaqCategory = "getting-started" | "services-delivery" | "support";
@@ -19,7 +32,7 @@ const FAQ_ITEMS: Array<{
   {
     question: "How do I get a freight quote?",
     answer:
-      "Use the quote form on our home page to submit your origin, destination, weight, and cargo type. We also offer a full quote form at /quote. Our team will respond with options and pricing. You can also contact us directly for complex or high-volume shipments.",
+      "Use the quote form on our home page to submit your origin, destination, weight, and cargo type. We also offer a full quote form on our Freight Quote page. Our team will respond with options and pricing. You can also contact us directly for complex or high-volume shipments.",
     category: "getting-started",
   },
   {
@@ -87,9 +100,20 @@ function getItemsByCategory() {
 export default function FAQPage() {
   const grouped = getItemsByCategory();
   let globalIndex = 0;
+  const baseUrl = BASE_URL ?? "https://hansnetlogistics.com";
+  const faqSchema = faqPageSchema(
+    FAQ_ITEMS.map(({ question, answer }) => ({ question, answer })),
+    baseUrl
+  );
+  const breadcrumb = breadcrumbSchema([
+    { name: "Home", url: baseUrl },
+    { name: "FAQ", url: `${baseUrl}/faq` },
+  ]);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumb} />
       <h1 className="font-mono text-2xl font-bold uppercase tracking-tight text-primary sm:text-3xl">
         Frequently Asked Questions
       </h1>
@@ -131,6 +155,16 @@ export default function FAQPage() {
                             <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
                               {answer}
                             </p>
+                            {question === "How do I get a freight quote?" && (
+                              <p className="mt-3">
+                                <Link
+                                  href="/quote"
+                                  className="font-mono text-sm font-medium text-primary underline hover:text-primary/80"
+                                >
+                                  Get a freight quote
+                                </Link>
+                              </p>
+                            )}
                           </div>
                         </details>
                       );

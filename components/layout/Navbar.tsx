@@ -32,6 +32,9 @@ export function Navbar() {
           <Link href="/about" className={navLinkClass}>
             About Us
           </Link>
+          <Link href="/services" className={navLinkClass}>
+            Services
+          </Link>
           <Link href="/faq" className={navLinkClass}>
             FAQ
           </Link>

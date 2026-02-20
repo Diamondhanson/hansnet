@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MapLoader } from "@/components/track/MapLoader";
 import { ShareTrackingButton } from "@/components/track/ShareTrackingButton";
@@ -5,6 +6,21 @@ import { TrackNotFound } from "@/components/track/TrackNotFound";
 import { TrackStepper } from "@/components/track/TrackStepper";
 import { Badge } from "@/components/ui/badge";
 import { getSupabase } from "@/lib/supabase";
+
+type Props = { params: Promise<{ id: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const trackingId = decodeURIComponent(id).trim();
+  const title = `Shipment Tracking - ${trackingId}`;
+  const description = `Track your shipment ${trackingId} with real-time status updates and delivery estimates.`;
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { title, description },
+  };
+}
 
 function formatDeliveryDate(iso: string | null) {
   if (!iso) return "—";
@@ -45,11 +61,7 @@ function getLatestCoordinates(
     : null;
 }
 
-export default async function TrackPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function TrackPage({ params }: Props) {
   const { id } = await params;
   const trackingId = decodeURIComponent(id).trim();
 

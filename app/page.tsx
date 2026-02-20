@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+import { BASE_URL } from "@/constants/config";
 import Link from "next/link";
 import {
   Plane,
@@ -21,9 +23,17 @@ import { HeroSearch } from "@/components/home/HeroSearch";
 import { AnimatedSection } from "@/components/home/AnimatedSection";
 import { AboutCarousel } from "@/components/home/AboutCarousel";
 import { HomeQuoteForm } from "@/components/home/HomeQuoteForm";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
-const HERO_IMAGE_URL =
-  "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000";
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+const HERO_IMAGE = "/hero.jpg";
+// Tiny placeholder for blur effect during load
+const HERO_BLUR =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBRIhMQYTQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ALe2tmjEccEaRxqAqKoAUDoAV//Z";
 
 const RIBBON_STATS = [
   "LIVE SHIPMENTS: 3,402",
@@ -94,16 +104,22 @@ const STATS = [
 ] as const;
 
 export default function Home() {
+  const baseUrl = BASE_URL ?? "https://hansnetlogistics.com";
+  const breadcrumb = breadcrumbSchema([{ name: "Home", url: baseUrl }]);
+
   return (
     <div className="flex flex-col">
+      <JsonLd data={breadcrumb} />
       {/* Hero */}
       <section className="relative w-full overflow-hidden border-b-2 border-primary">
         <div className="relative aspect-[21/9] w-full min-h-[320px] sm:min-h-[400px] md:aspect-[3/1]">
           <Image
-            src={HERO_IMAGE_URL}
+            src={HERO_IMAGE}
             alt="Cargo ship and logistics warehouse — global supply chain"
             fill
             priority
+            placeholder="blur"
+            blurDataURL={HERO_BLUR}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 2000px"
             className="object-cover"
           />
@@ -113,7 +129,7 @@ export default function Home() {
               {COMPANY_NAME}
             </h1>
             <p className="mt-3 max-w-xl text-lg text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] sm:text-xl">
-              Logistics tracking and shipment visibility for modern supply chains
+              International freight, air & ocean shipping with real-time logistics tracking and shipment visibility
             </p>
             <HeroSearch />
           </AnimatedSection>
@@ -149,18 +165,31 @@ export default function Home() {
             logistics with tracking and support at every step.
           </p>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map(({ id, title, description }) => {
+            {SERVICES.map(({ id, title, description, image }) => {
               const Icon = SERVICE_ICONS[id];
               return (
                 <div
                   key={id}
-                  className="min-h-[200px] rounded-none border border-default border-t-4 border-t-accent bg-card p-8"
+                  className="min-h-[320px] overflow-hidden rounded-none border border-default border-t-4 border-t-accent bg-card"
                 >
-                  {Icon && <Icon className="size-12 text-primary" aria-hidden />}
-                  <h3 className="mt-5 font-mono text-xl font-bold uppercase tracking-tight text-accent">
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      src={image}
+                      alt={`${title} service - ${description}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-2">
+                      {Icon && <Icon className="size-6 shrink-0 text-primary" aria-hidden />}
+                      <h3 className="font-mono text-xl font-bold uppercase tracking-tight text-accent">
+                        {title}
+                      </h3>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                  </div>
                 </div>
               );
             })}

@@ -1,17 +1,38 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMPANY_NAME, SUPPORT_EMAIL } from "@/constants/config";
+import { COMPANY_NAME, SUPPORT_EMAIL, BASE_URL } from "@/constants/config";
 import { SERVICES } from "@/constants/services";
 import { Button } from "@/components/ui/button";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: `About Us – ${COMPANY_NAME}`,
-  description: `Learn about ${COMPANY_NAME}, our shipping and logistics services, and company policies.`,
+  title: "About Us",
+  description:
+    "Learn about HANSNET LOGISTICS—global freight forwarding, supply chain management, and shipping services. Decades of experience in air, ocean, and ground transport.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Us | HANSNET LOGISTICS",
+    description:
+      "Learn about HANSNET LOGISTICS—global freight forwarding, supply chain management, and shipping services.",
+    url: "/about",
+  },
+  twitter: {
+    title: "About Us | HANSNET LOGISTICS",
+    description: "Global freight forwarding, supply chain management, and shipping services.",
+  },
 };
 
 export default function AboutPage() {
+  const baseUrl = BASE_URL ?? "https://hansnetlogistics.com";
+  const breadcrumb = breadcrumbSchema([
+    { name: "Home", url: baseUrl },
+    { name: "About Us", url: `${baseUrl}/about` },
+  ]);
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <JsonLd data={breadcrumb} />
       <h1 className="font-mono text-2xl font-bold uppercase tracking-tight text-accent sm:text-3xl">
         About Us
       </h1>
@@ -21,17 +42,17 @@ export default function AboutPage() {
           Who We Are
         </h2>
         <p className="max-w-3xl leading-relaxed text-foreground">
-          {COMPANY_NAME} is a global shipping and logistics company with a network of hubs and
-          partners worldwide. We combine decades of experience in freight with modern tracking and
-          visibility so you know where your goods are from pickup to delivery.
+          {COMPANY_NAME} is a global freight forwarding and logistics company with a network of hubs and
+          partners worldwide. We combine decades of experience in supply chain management with modern
+          tracking and visibility so you know where your goods are from pickup to delivery.
         </p>
         <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
           What We Do
         </h2>
         <p className="max-w-3xl leading-relaxed text-foreground">
-          We offer air freight, ocean freight, and ground transport with real-time tracking and
-          customs support. Whether you ship pallets, containers, or specialized cargo, we provide
-          reliable service and clear communication at every step.
+          We offer air freight, ocean freight (FCL and LCL), and ground transport with real-time
+          tracking and customs clearance support. Whether you ship pallets, containers, or
+          specialized cargo, we provide reliable service and clear communication at every step.
         </p>
         <h2 className="font-mono text-xl font-bold uppercase tracking-tight text-primary sm:text-2xl">
           Our Values
@@ -44,8 +65,9 @@ export default function AboutPage() {
           Our Services
         </h2>
         <p className="max-w-3xl leading-relaxed text-foreground mt-3">
-          We offer warehouse, freight, and specialized transport so you have one partner for
-          storage, ocean and road freight, air cargo, pet relocation, and vehicle shipping.
+          We offer warehouse storage, freight, and specialized transport so you have one partner for
+          warehousing, ocean freight shipping, road freight, air cargo, pet relocation, and vehicle
+          transport—door-to-door logistics with full visibility.
         </p>
         <ul className="mt-6 space-y-4 max-w-3xl">
           {SERVICES.map(({ id, title, description }) => (
