@@ -35,6 +35,9 @@ export type Shipment = {
   dest_lng: number | null;
   weight: number | null;
   service_type: string | null;
+  product_quantity: number | null;
+  product_details: string | null;
+  payment_method: string | null;
 };
 
 export type ShipmentUpdate = {

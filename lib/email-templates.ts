@@ -1,8 +1,12 @@
 const BRAND = "HANSNET LOGISTICS";
 const PRIMARY = "#0f172a";
+const PRIMARY_MID = "#1e3a5f";
 const ACCENT = "#f59e0b";
 const BG = "#f8fafc";
 const MUTED = "#64748b";
+const TABLE_BORDER = "#cbd5e1";
+const ROW_LABEL_BG = "#e8eef5";
+const HIGHLIGHT_BG = "#fffbeb";
 
 function baseLayout(content: string): string {
   return `
@@ -25,10 +29,38 @@ function baseLayout(content: string): string {
 </html>`;
 }
 
+function escapeHtmlForEmail(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function section(title: string, body: string): string {
   return `
   <p style="margin:0 0 8px;font-family:ui-monospace,monospace;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:${PRIMARY};">${title}</p>
   <p style="margin:0 0 20px;font-size:14px;color:${PRIMARY};">${body}</p>`;
+}
+
+/** Two-column table row for shipment-style emails (Gmail-friendly). */
+function shipmentTableRow(label: string, valueHtml: string, isLast = false): string {
+  const b = isLast ? "none" : `1px solid ${TABLE_BORDER}`;
+  return `
+  <tr>
+    <td valign="top" style="background:${ROW_LABEL_BG};padding:12px 14px;width:34%;max-width:180px;font-family:ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${PRIMARY_MID};border-bottom:${b};">${label}</td>
+    <td valign="top" style="padding:12px 14px;font-size:14px;color:${PRIMARY};border-bottom:${b};line-height:1.5;">${valueHtml}</td>
+  </tr>`;
+}
+
+function shipmentDetailsTable(rowsHtml: string): string {
+  return `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 22px;border:2px solid ${PRIMARY};border-radius:0;box-shadow:0 2px 8px rgba(15,23,42,0.08);">
+    <tr>
+      <td colspan="2" style="background:${PRIMARY};padding:14px 18px;color:#ffffff;font-family:ui-monospace,monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-bottom:3px solid ${ACCENT};">Shipment summary</td>
+    </tr>
+    ${rowsHtml}
+  </table>`;
 }
 
 export function contactFormReceived(data: {
@@ -75,18 +107,67 @@ export function shipmentCreated(data: {
   weight: string | null;
   estimatedDelivery: string | null;
   supportEmail: string;
+  productQuantity: string | null;
+  productDetails: string | null;
+  paymentMethodLabel: string | null;
 }): string {
+  const detailsHtml = data.productDetails
+    ? escapeHtmlForEmail(data.productDetails).replace(/\n/g, "<br>")
+    : "";
+  const trackingCell = `<span style="font-family:ui-monospace,monospace;font-weight:700;font-size:15px;color:${PRIMARY_MID};letter-spacing:0.02em;">${escapeHtmlForEmail(data.trackingId)}</span>`;
+
+  const rowSpecs: Array<{ label: string; value: string }> = [];
+  if (data.receiverName) {
+    rowSpecs.push({ label: "Recipient", value: escapeHtmlForEmail(data.receiverName) });
+  }
+  rowSpecs.push({ label: "Tracking ID", value: trackingCell });
+  if (data.category) {
+    rowSpecs.push({ label: "Category", value: escapeHtmlForEmail(data.category) });
+  }
+  if (data.serviceType) {
+    rowSpecs.push({
+      label: "Service",
+      value: `<span style="text-transform:capitalize;">${escapeHtmlForEmail(data.serviceType)}</span>`,
+    });
+  }
+  if (data.weight != null && data.weight !== "") {
+    rowSpecs.push({ label: "Weight", value: escapeHtmlForEmail(data.weight) });
+  }
+  if (data.estimatedDelivery) {
+    rowSpecs.push({ label: "Estimated delivery", value: escapeHtmlForEmail(data.estimatedDelivery) });
+  }
+  if (data.productQuantity != null && data.productQuantity !== "") {
+    rowSpecs.push({ label: "Product quantity", value: escapeHtmlForEmail(data.productQuantity) });
+  }
+  if (data.productDetails) {
+    rowSpecs.push({ label: "Product details", value: detailsHtml });
+  }
+  if (data.paymentMethodLabel) {
+    rowSpecs.push({ label: "Payment method", value: escapeHtmlForEmail(data.paymentMethodLabel) });
+  }
+
+  const rowsHtml = rowSpecs
+    .map((r, i) => shipmentTableRow(r.label, r.value, i === rowSpecs.length - 1))
+    .join("");
+
+  const summarySafe = escapeHtmlForEmail(data.summary);
   const content = `
-    <p style="margin:0 0 16px;font-size:15px;">Your shipment has been created.</p>
-    ${data.receiverName ? section("Recipient", data.receiverName) : ""}
-    ${section("Tracking ID", data.trackingId)}
-    ${data.category ? section("Category", data.category) : ""}
-    ${data.serviceType ? section("Service", data.serviceType) : ""}
-    ${data.weight != null && data.weight !== "" ? section("Weight", data.weight) : ""}
-    ${data.estimatedDelivery ? section("Estimated delivery", data.estimatedDelivery) : ""}
-    <p style="margin:16px 0 0;font-size:14px;">${data.summary}</p>
-    <p style="margin:20px 0 0;"><a href="${data.trackingUrl}" style="display:inline-block;padding:12px 20px;background:${PRIMARY};color:#fff;text-decoration:none;font-family:ui-monospace,monospace;font-size:12px;font-weight:600;letter-spacing:0.05em;">VIEW TRACKING</a></p>
-    <p style="margin:24px 0 0;font-size:14px;color:${MUTED};">If you have any questions, contact us at <a href="mailto:${data.supportEmail}" style="color:${PRIMARY};font-weight:600;">${data.supportEmail}</a>.</p>
+    <p style="margin:0 0 18px;padding:14px 16px;background:${HIGHLIGHT_BG};border-left:4px solid ${ACCENT};font-size:15px;color:${PRIMARY};line-height:1.5;"><strong style="color:${PRIMARY};">Your shipment has been created.</strong> Use the table below for your reference.</p>
+    ${shipmentDetailsTable(rowsHtml)}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px;border:1px solid ${TABLE_BORDER};background:#ffffff;">
+      <tr>
+        <td style="padding:12px 14px;font-size:12px;font-weight:700;font-family:ui-monospace,monospace;letter-spacing:0.06em;text-transform:uppercase;color:${PRIMARY_MID};background:${ROW_LABEL_BG};width:34%;border-right:1px solid ${TABLE_BORDER};vertical-align:top;">Route</td>
+        <td style="padding:12px 14px;font-size:14px;color:${PRIMARY};vertical-align:top;">${summarySafe}</td>
+      </tr>
+    </table>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
+      <tr>
+        <td style="border-radius:0;">
+          <a href="${data.trackingUrl}" style="display:inline-block;padding:14px 28px;background:${PRIMARY};color:#ffffff;text-decoration:none;font-family:ui-monospace,monospace;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;border:2px solid ${ACCENT};">View tracking</a>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:20px 0 0;font-size:13px;color:${MUTED};line-height:1.55;">Questions? Email us at <a href="mailto:${data.supportEmail}" style="color:${PRIMARY_MID};font-weight:600;">${data.supportEmail}</a>.</p>
   `;
   return baseLayout(content);
 }

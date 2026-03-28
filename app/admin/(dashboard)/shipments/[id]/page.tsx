@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PostStatusUpdateForm } from "@/components/admin/PostStatusUpdateForm";
 import { Button } from "@/components/ui/button";
+import { paymentMethodLabel } from "@/constants/paymentMethods";
 import {
   Table,
   TableBody,
@@ -166,6 +167,24 @@ export default async function AdminShipmentDetailPage({
               <div>
                 <dt className="font-mono text-muted-foreground">Service type</dt>
                 <dd className="font-mono font-medium">{shipment.service_type ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Product quantity</dt>
+                <dd className="font-mono font-medium">
+                  {shipment.product_quantity != null ? shipment.product_quantity : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Product details</dt>
+                <dd className="font-mono font-medium whitespace-pre-wrap">
+                  {shipment.product_details ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-mono text-muted-foreground">Payment method</dt>
+                <dd className="font-mono font-medium">
+                  {paymentMethodLabel(shipment.payment_method) ?? shipment.payment_method ?? "—"}
+                </dd>
               </div>
             </dl>
           </CardContent>

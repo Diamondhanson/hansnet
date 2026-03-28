@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { BASE_URL, SUPPORT_EMAIL } from "@/constants/config";
 import { sendEmail } from "@/lib/email";
 import { shipmentCreated } from "@/lib/email-templates";
+import { isValidPaymentMethodSlug, paymentMethodLabel } from "@/constants/paymentMethods";
 
 function generateTrackingId(): string {
   const prefix = "SHIP";
@@ -23,6 +24,13 @@ function parseEstimatedDelivery(value: FormDataEntryValue | null): string | null
   if (value === null || typeof value !== "string" || !value.trim()) return null;
   const d = new Date(value.trim());
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+function parseProductQuantity(value: FormDataEntryValue | null): number | null {
+  if (value === null || value === "") return null;
+  const n = parseInt(String(value).trim(), 10);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n;
 }
 
 export type CreateShipmentState = {
@@ -58,6 +66,16 @@ export async function createShipment(
   const dest_lng = parseNum(formData.get("dest_lng"));
   const estimated_delivery_date = parseEstimatedDelivery(formData.get("estimated_delivery_date"));
   const receiver_email = (formData.get("receiver_email") as string)?.trim() || null;
+  const product_quantity = parseProductQuantity(formData.get("product_quantity"));
+  const product_details = (formData.get("product_details") as string)?.trim() || null;
+  const payment_method_raw = (formData.get("payment_method") as string)?.trim() ?? "";
+  let payment_method: string | null = null;
+  if (payment_method_raw && payment_method_raw !== "__unset__") {
+    if (!isValidPaymentMethodSlug(payment_method_raw)) {
+      return { trackingId: null, error: "Invalid payment method." };
+    }
+    payment_method = payment_method_raw;
+  }
 
   if (!tracking_id) {
     return { trackingId: null, error: "Shipment ID is required." };
@@ -86,6 +104,9 @@ export async function createShipment(
       service_type: service_type || "land",
       estimated_delivery_date,
       receiver_email,
+      product_quantity,
+      product_details,
+      payment_method,
     })
     .select("tracking_id")
     .single();
@@ -117,6 +138,9 @@ export async function createShipment(
           : null,
       estimatedDelivery: estimatedDeliveryFormatted,
       supportEmail: SUPPORT_EMAIL,
+      productQuantity: product_quantity != null ? String(product_quantity) : null,
+      productDetails: product_details,
+      paymentMethodLabel: payment_method ? paymentMethodLabel(payment_method) : null,
     });
     console.warn("[createShipment] Sending client email for", data.tracking_id);
     const result = await sendEmail({

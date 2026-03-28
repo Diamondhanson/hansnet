@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { SHIPMENT_TYPE_OPTIONS } from "@/constants/shipmentTypes";
+import { PAYMENT_METHOD_OPTIONS } from "@/constants/paymentMethods";
 import {
   createShipment,
   generateTrackingIdAction,
@@ -44,6 +45,7 @@ export default function AdminNewShipmentPage() {
   const [serviceType, setServiceType] = useState("land");
   const [category, setCategory] = useState(SHIPMENT_TYPE_OPTIONS[0]?.value ?? "general");
   const [weightUnit, setWeightUnit] = useState<"kg" | "lb">("kg");
+  const [paymentMethod, setPaymentMethod] = useState("__unset__");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [trackingUrl, setTrackingUrl] = useState("");
 
@@ -255,6 +257,56 @@ export default function AdminNewShipmentPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-4 rounded-none border border-default border-t-4 border-t-accent bg-card/30 p-4">
+              <h3 className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
+                Product & payment
+              </h3>
+              <div className="space-y-2">
+                <Label htmlFor="product_quantity" className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
+                  Product quantity
+                </Label>
+                <Input
+                  id="product_quantity"
+                  name="product_quantity"
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="Optional"
+                  className={inputClass}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="product_details" className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
+                  Product details
+                </Label>
+                <textarea
+                  id="product_details"
+                  name="product_details"
+                  rows={4}
+                  placeholder="Description, SKU, packaging, etc."
+                  className={inputClass}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
+                  Payment method
+                </Label>
+                <input type="hidden" name="payment_method" value={paymentMethod} />
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger className={`${inputClass} w-full`}>
+                    <SelectValue placeholder="Optional" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__unset__">Not specified</SelectItem>
+                    {PAYMENT_METHOD_OPTIONS.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="estimated_delivery_date" className="font-mono text-sm font-semibold uppercase tracking-wide text-primary">
