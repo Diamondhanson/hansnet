@@ -16,7 +16,7 @@ import {
   Globe,
   TrendingUp,
 } from "lucide-react";
-import { COMPANY_NAME, SUPPORT_EMAIL } from "@/constants/config";
+import { COMPANY_NAME, SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_TEL } from "@/constants/config";
 import { SERVICES } from "@/constants/services";
 import { Button } from "@/components/ui/button";
 import { HeroSearch } from "@/components/home/HeroSearch";
@@ -309,6 +309,10 @@ export default function Home() {
             Get in touch for quotes and support:{" "}
             <a href={`mailto:${SUPPORT_EMAIL}`} className="font-mono font-medium text-primary underline hover:text-primary/80">
               {SUPPORT_EMAIL}
+            </a>
+            {" · "}
+            <a href={`tel:${SUPPORT_PHONE_TEL}`} className="font-mono font-medium text-primary underline hover:text-primary/80">
+              {SUPPORT_PHONE}
             </a>
           </p>
         </section>

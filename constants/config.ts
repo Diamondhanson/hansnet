@@ -1,5 +1,9 @@
 export const COMPANY_NAME = "HANSNET LOGISTICS";
 export const SUPPORT_EMAIL = "hansnetlogistics@gmail.com";
+/** Display format for the main support line */
+export const SUPPORT_PHONE = "+1 (213) 849-3854";
+/** E.164-style value for tel: links */
+export const SUPPORT_PHONE_TEL = "+12138493854";
 
 function ensureProtocol(url: string): string {
   const trimmed = url.trim();

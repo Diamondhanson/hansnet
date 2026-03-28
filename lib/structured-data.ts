@@ -5,7 +5,13 @@
 
 export type JsonLdSchema = Record<string, unknown>;
 
-export function organizationSchema(baseUrl: string, logoUrl: string, email: string, name: string): JsonLdSchema {
+export function organizationSchema(
+  baseUrl: string,
+  logoUrl: string,
+  email: string,
+  name: string,
+  telephone?: string
+): JsonLdSchema {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -13,6 +19,7 @@ export function organizationSchema(baseUrl: string, logoUrl: string, email: stri
     url: baseUrl,
     logo: `${baseUrl}${logoUrl}`,
     email,
+    ...(telephone ? { telephone } : {}),
     description:
       "International freight, ocean freight, air cargo, and warehousing with real-time shipment tracking.",
   };

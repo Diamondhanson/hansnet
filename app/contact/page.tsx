@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { COMPANY_NAME, SUPPORT_EMAIL, BASE_URL } from "@/constants/config";
+import { COMPANY_NAME, SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_TEL, BASE_URL } from "@/constants/config";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -36,22 +36,33 @@ export default function ContactPage() {
         Contact
       </h1>
       <p className="mt-4 max-w-2xl text-muted-foreground">
-        Get in touch for quotes and support. Fill out the form below or email us directly.
+        Get in touch for quotes and support. Fill out the form below, call us, or email us directly.
       </p>
 
       <div className="mt-8 rounded-none border border-default bg-card p-6 sm:p-8 max-w-xl">
         <ContactForm />
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        Or email us directly:{" "}
-        <a
-          href={`mailto:${SUPPORT_EMAIL}`}
-          className="font-mono font-medium text-primary underline hover:text-primary/80"
-        >
-          {SUPPORT_EMAIL}
-        </a>
-      </p>
+      <div className="mt-6 space-y-2 text-sm text-muted-foreground">
+        <p>
+          Phone:{" "}
+          <a
+            href={`tel:${SUPPORT_PHONE_TEL}`}
+            className="font-mono font-medium text-primary underline hover:text-primary/80"
+          >
+            {SUPPORT_PHONE}
+          </a>
+        </p>
+        <p>
+          Email:{" "}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="font-mono font-medium text-primary underline hover:text-primary/80"
+          >
+            {SUPPORT_EMAIL}
+          </a>
+        </p>
+      </div>
 
       <div className="mt-10">
         <Button asChild variant="outline" className="rounded-none border-2 uppercase tracking-widest">

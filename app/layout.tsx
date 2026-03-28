@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Inter, Roboto_Mono } from "next/font/google";
-import { COMPANY_NAME, SUPPORT_EMAIL, BASE_URL } from "@/constants/config";
+import { COMPANY_NAME, SUPPORT_EMAIL, SUPPORT_PHONE_TEL, BASE_URL } from "@/constants/config";
 import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -67,7 +67,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const orgSchema = organizationSchema(baseUrl, "/logo.png", SUPPORT_EMAIL, COMPANY_NAME);
+  const orgSchema = organizationSchema(baseUrl, "/logo.png", SUPPORT_EMAIL, COMPANY_NAME, SUPPORT_PHONE_TEL);
 
   return (
     <html lang="en">
