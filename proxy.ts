@@ -1,10 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { normalizeSupabaseUrl } from "@/lib/supabase/url";
 
 export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) {
+  if (!rawUrl?.trim() || !key?.trim()) {
     return NextResponse.next();
   }
 
@@ -12,7 +13,7 @@ export async function proxy(request: NextRequest) {
     request,
   });
 
-  const supabase = createServerClient(url, key, {
+  const supabase = createServerClient(normalizeSupabaseUrl(rawUrl), key, {
     cookies: {
       getAll() {
         return request.cookies.getAll();

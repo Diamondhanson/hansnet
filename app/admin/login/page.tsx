@@ -32,6 +32,14 @@ export default function AdminLoginPage() {
       }
       router.push("/admin");
       router.refresh();
+    } catch (caught) {
+      const message =
+        caught instanceof TypeError && caught.message === "Failed to fetch"
+          ? "Could not reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL (use https://…), your network, and that the project is not paused in the Supabase dashboard."
+          : caught instanceof Error
+            ? caught.message
+            : "Something went wrong.";
+      setError(message);
     } finally {
       setLoading(false);
     }

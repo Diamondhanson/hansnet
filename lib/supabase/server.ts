@@ -1,11 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { normalizeSupabaseUrl } from "@/lib/supabase/url";
 
 export async function createClient() {
   const cookieStore = await cookies();
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  if (!url || !key) return null;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!rawUrl?.trim() || !key?.trim()) return null;
+  const url = normalizeSupabaseUrl(rawUrl);
 
   return createServerClient(url, key, {
     cookies: {

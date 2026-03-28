@@ -1,7 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +28,7 @@ const WEIGHT_UNIT_OPTIONS = [
 export function HomeQuoteForm() {
   const [type, setType] = useState("");
   const [weightUnit, setWeightUnit] = useState<"kg" | "lb">("kg");
-  const [state, formAction] = useFormState(submitQuoteRequest, initialState);
+  const [state, formAction] = useActionState(submitQuoteRequest, initialState);
 
   return (
     <form action={formAction}>
