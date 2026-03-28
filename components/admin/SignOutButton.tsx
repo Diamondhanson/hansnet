@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 export function SignOutButton({ className }: { className?: string }) {
   const router = useRouter();
 
+
+  
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
