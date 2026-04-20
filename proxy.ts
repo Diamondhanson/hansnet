@@ -2,6 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { normalizeSupabaseUrl } from "@/lib/supabase/url";
 
+/** Copy cookies set during session refresh (e.g. rotated JWT) onto another response. */
+function copyCookies(from: NextResponse, to: NextResponse) {
+  const list = from.headers.getSetCookie?.();
+  if (list?.length) {
+    list.forEach((line) => to.headers.append("Set-Cookie", line));
+    return;
+  }
+  from.cookies.getAll().forEach(({ name, value }) => {
+    to.cookies.set(name, value);
+  });
+}
+
 export async function proxy(request: NextRequest) {
   const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -35,13 +47,17 @@ export async function proxy(request: NextRequest) {
   const isAdminLogin = path === "/admin/login";
 
   if (isAdminRoute && !isAdminLogin && !user) {
-    const redirect = new URL("/admin/login", request.url);
-    return NextResponse.redirect(redirect);
+    const redirectUrl = new URL("/admin/login", request.url);
+    const redirect = NextResponse.redirect(redirectUrl);
+    copyCookies(response, redirect);
+    return redirect;
   }
 
   if (isAdminLogin && user) {
-    const redirect = new URL("/admin", request.url);
-    return NextResponse.redirect(redirect);
+    const redirectUrl = new URL("/admin", request.url);
+    const redirect = NextResponse.redirect(redirectUrl);
+    copyCookies(response, redirect);
+    return redirect;
   }
 
   return response;

@@ -47,21 +47,44 @@ export function AddressAutocomplete({
         return;
       }
       try {
-        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(trimmed)}&apiKey=${apiKey}`;
+        const params = new URLSearchParams({
+          text: trimmed,
+          apiKey,
+          limit: "8",
+        });
+        const url = `https://api.geoapify.com/v1/geocode/autocomplete?${params}`;
         const res = await fetch(url);
-        const data = await res.json();
+        if (!res.ok) {
+          setSuggestions([]);
+          return;
+        }
+        const data = (await res.json()) as {
+          features?: Array<{
+            properties?: { formatted?: string; lat?: number; lon?: number };
+            geometry?: { coordinates?: [number, number] };
+          }>;
+        };
         const features = data.features ?? [];
-        const list: Suggestion[] = features.map((f: { properties?: { formatted?: string; lat?: number; lon?: number }; geometry?: { coordinates?: [number, number] } }) => {
-          const props = f.properties ?? {};
-          const coords = f.geometry?.coordinates;
-          const lat = props.lat ?? (Array.isArray(coords) ? coords[1] : undefined);
-          const lon = props.lon ?? (Array.isArray(coords) ? coords[0] : undefined);
-          return {
-            formatted: props.formatted ?? "",
-            lat: typeof lat === "number" ? lat : 0,
-            lon: typeof lon === "number" ? lon : 0,
-          };
-        }).filter((s: Suggestion) => s.formatted);
+        const list: Suggestion[] = features
+          .map((f) => {
+            const props = f.properties ?? {};
+            const coords = f.geometry?.coordinates;
+            const lat = props.lat ?? (Array.isArray(coords) ? coords[1] : undefined);
+            const lon = props.lon ?? (Array.isArray(coords) ? coords[0] : undefined);
+            return {
+              formatted: props.formatted ?? "",
+              lat: typeof lat === "number" && Number.isFinite(lat) ? lat : NaN,
+              lon: typeof lon === "number" && Number.isFinite(lon) ? lon : NaN,
+            };
+          })
+          .filter(
+            (s): s is Suggestion =>
+              Boolean(s.formatted) &&
+              Number.isFinite(s.lat) &&
+              Number.isFinite(s.lon) &&
+              Math.abs(s.lat) <= 90 &&
+              Math.abs(s.lon) <= 180
+          );
         setSuggestions(list);
         setOpen(true);
       } catch {

@@ -53,7 +53,8 @@ export default function AdminLoginPage() {
             Admin Login
           </h1>
           <p className="text-sm text-muted-foreground">
-            Sign in to access the dashboard
+            Sign in with any Supabase Auth user (for example one you add under
+            Authentication → Users in the project dashboard).
           </p>
         </CardHeader>
         <CardContent className="pt-6">
