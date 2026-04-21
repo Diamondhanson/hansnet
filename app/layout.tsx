@@ -93,7 +93,7 @@ export default function RootLayout({
               />
             </Link>
             <p className="text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} {COMPANY_NAME}.{" "}
+              © 2018–{new Date().getFullYear()} {COMPANY_NAME}.{" "}
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
                 className="underline hover:text-foreground"
